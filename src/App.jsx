@@ -355,7 +355,12 @@ const App = () => {
         )
 
         }
-        <button onClick={() => setDarkMode(!darkMode)} className="px-4 py-2 absolute top-6 right-3 rounded-xl border border-[#D1D5DB] bg-white text-[#374151]">{darkMode ? " Light Mode" : "Dark Mode"}  </button>
+        <button onClick={() => setDarkMode(!darkMode)} className={`px-4 py-2 absolute top-6 right-3 rounded-xl border transition-all duration-300 ${
+    darkMode
+      ? "bg-white text-[#171717] border-white hover:bg-[#E5E7EB]"
+      : "bg-[#171717] text-white border-[#171717] hover:bg-[#374151]"
+  }`}>
+          {darkMode ? " Light Mode" : "Dark Mode"}  </button>
 
 
 
