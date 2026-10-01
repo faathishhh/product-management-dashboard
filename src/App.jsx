@@ -309,7 +309,7 @@ const App = () => {
 
 
   return (
-    <div className={`min-h-screen min-w-screen p-10 transition-colors duration-300 ${darkMode
+    <div className={`min-h-screen  p-10 transition-colors duration-300 ${darkMode
       ? "bg-[#171717] text-white"
       : "bg-[#F8F8F6] text-[#171717]"
       }`}>
@@ -319,7 +319,7 @@ const App = () => {
         : "bg-[#F8F8F6] text-[#171717]"
         }`} >Product Managemnet Dashboard</h1>
 
-      <div className='flex justify-between items-center'>
+      <div className='flex justify-between items-center '>
 
         <CategoryFilter category={category} setCategory={setCategory} darkMode={darkMode} />
 

@@ -75,7 +75,7 @@ const ProductForm = ({ addProduct, onClose,editProduct,editingProduct,darkMode }
 
   return (
     <div>
-      <form onSubmit={handleSubmit} className={`flex flex-col gap-5 border-2 rounded-2xl px-10 py-5 ${
+      <form onSubmit={handleSubmit} className={`flex absolute right-8 top-18 min-h-screen   z-40 flex-col justify-center items-center gap-10 border-2 rounded-2xl px-10 py-5 ${
           darkMode
             ? "bg-[#262626] border-[#404040] text-white"
             : "bg-white border-[#2563EB] text-[#374151]"
