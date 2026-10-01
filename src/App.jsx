@@ -309,7 +309,7 @@ const App = () => {
 
 
   return (
-    <div className={`min-h-screen p-10 transition-colors duration-300 ${darkMode
+    <div className={`min-h-screen min-w-screen p-10 transition-colors duration-300 ${darkMode
       ? "bg-[#171717] text-white"
       : "bg-[#F8F8F6] text-[#171717]"
       }`}>
@@ -330,15 +330,14 @@ const App = () => {
         <SearchBar search={search} setSearch={setSearch} darkMode={darkMode} />
 
         <h1 className={`text-[18px] font-[400] transition-colors duration-300 ${darkMode
-        ? "bg-[#171717] text-white"
-        : "bg-[#F8F8F6] text-[#171717]"
-        }`}>Total Products:{filteredProducts.length}</h1>
+          ? "bg-[#171717] text-white"
+          : "bg-[#F8F8F6] text-[#171717]"
+          }`}>Total Products:{filteredProducts.length}</h1>
 
-        <button onClick={() => setShowForm(true)} className={`rounded-lg px-3 py-2 border focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 ${
-          darkMode
+        <button onClick={() => setShowForm(true)} className={`rounded-lg px-3 py-2 border focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 ${darkMode
             ? "bg-[#262626] text-white border-[#404040] focus:border-[#60A5FA]"
             : "bg-white text-[#374151] border-[#D1D5DB] focus:border-[#2563EB]"
-        }`} > Add Products</button>
+          }`} > Add Products</button>
 
         {showForm && (
           <ProductForm onClose={() => {
@@ -355,11 +354,10 @@ const App = () => {
         )
 
         }
-        <button onClick={() => setDarkMode(!darkMode)} className={`px-4 py-2 absolute top-6 right-3 rounded-xl border transition-all duration-300 ${
-    darkMode
-      ? "bg-white text-[#171717] border-white hover:bg-[#E5E7EB]"
-      : "bg-[#171717] text-white border-[#171717] hover:bg-[#374151]"
-  }`}>
+        <button onClick={() => setDarkMode(!darkMode)} className={`px-4 py-2 absolute top-6 right-3 rounded-xl border transition-all duration-300 ${darkMode
+            ? "bg-white text-[#171717] border-white hover:bg-[#E5E7EB]"
+            : "bg-[#171717] text-white border-[#171717] hover:bg-[#374151]"
+          }`}>
           {darkMode ? " Light Mode" : "Dark Mode"}  </button>
 
 
