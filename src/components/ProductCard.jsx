@@ -2,7 +2,8 @@ import React from 'react'
 
 const ProductCard = ({ product, onDelete, onEdit, darkMode }) => {
   return (
-    <div className={`relative flex flex-col gap-3 border-2 p-10 hover:scale-102 transition-colors ${darkMode
+    <div className={`relative flex flex-col gap-3 border-2  hover:shadow-xl hover:shadow-blue-100
+                transition duration-300 rounded-xl p-5 hover:scale-102 transition-colors ${darkMode
         ? "border-[#404040] bg-[#262626]"
         : "border-[#E5E7EB] bg-white"
       }`}>

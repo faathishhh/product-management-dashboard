@@ -309,14 +309,14 @@ const App = () => {
 
 
   return (
-    <div className={`min-h-screen  p-10 transition-colors duration-300 ${darkMode
+    <div className={` min-h-screen  p-10 transition-colors duration-300 ${darkMode
       ? "bg-[#171717] text-white"
-      : "bg-[#F8F8F6] text-[#171717]"
+      : "bg-gradient-to-b from-blue-50 to-white text-[#171717]"
       }`}>
 
       <h1 className={`text-4xl font-serif font-[400px] uppercase text-center mb-10 transition-colors duration-300 ${darkMode
-        ? "bg-[#171717] text-white"
-        : "bg-[#F8F8F6] text-[#171717]"
+        ? " text-white"
+        : " text-blue-950"
         }`} >Product Managemnet Dashboard</h1>
 
       <div className='flex justify-between items-center '>
@@ -330,8 +330,8 @@ const App = () => {
         <SearchBar search={search} setSearch={setSearch} darkMode={darkMode} />
 
         <h1 className={`text-[18px] font-[400] transition-colors duration-300 ${darkMode
-          ? "bg-[#171717] text-white"
-          : "bg-[#F8F8F6] text-[#171717]"
+          ? " text-white"
+          : " text-[#171717]"
           }`}>Total Products:{filteredProducts.length}</h1>
 
         <button onClick={() => setShowForm(true)} className={`rounded-lg px-3 py-2 border focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 ${darkMode
