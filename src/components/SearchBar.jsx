@@ -1,20 +1,47 @@
-import React from 'react'
-import { CiSearch } from "react-icons/ci";
+import React from "react";
+import { Search, X } from "lucide-react";
 
-const SearchBar = ({search,setSearch,darkMode}) => {
+const SearchBar = ({ search, setSearch, darkMode }) => {
+
   return (
-    <div className='relative flex items-center'>
-        <input type="text" placeholder='search products... ' value={search} onChange={(e)=>setSearch(e.target.value)} className={`border rounded-2xl px-18 py-3 ${
-          darkMode
-            ? "bg-[#262626] text-white border-[#404040] placeholder:text-[#9CA3AF]"
-            : "bg-white text-[#171717] border-[#6B7280] placeholder:text-[#6B7280]"
-        }`} />
-        <span className='absolute left-4    '>
-          {/* <img src="/search.svg" alt="search" className=' w-7 ' /> */}
-          <CiSearch size={22} color='blue'  />
-        </span>
-    </div>
-  )
-}
+    <div className="relative w-full sm:w-72 lg:w-80">
 
-export default SearchBar
+      {/* Search Icon */}
+      <Search
+        size={19}
+        className={`absolute left-4 top-1/2 -translate-y-1/2 ${darkMode ? "text-gray-400" : "text-gray-500"
+          }`}
+      />
+
+      {/* Input */}
+      <input
+        type="text"
+        placeholder="Search products..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        className={`w-full rounded-xl border py-3 pl-11 pr-10 text-sm outline-none transition-all duration-200 focus:ring-4 focus:ring-blue-500/10 ${darkMode
+            ? "border-gray-700 bg-[#202230] text-white placeholder-gray-500 focus:border-blue-500"
+            : "border-gray-200 bg-white text-gray-800 placeholder-gray-400 shadow-sm focus:border-blue-500"
+          }`}
+      />
+
+      {/* Clear Search Button */}
+      {search && (
+        <button
+          type="button"
+          onClick={() => setSearch("")}
+          className={`absolute right-3 top-1/2 -translate-y-1/2 rounded-md p-1 transition ${darkMode
+              ? "text-gray-400 hover:bg-gray-700 hover:text-white"
+              : "text-gray-400 hover:bg-gray-100 hover:text-gray-700"
+            }`}
+          aria-label="Clear search"
+        >
+          <X size={16} />
+        </button>
+      )}
+
+    </div>
+  );
+};
+
+export default SearchBar;
