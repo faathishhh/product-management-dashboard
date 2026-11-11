@@ -4,7 +4,7 @@ import { Search, X } from "lucide-react";
 const SearchBar = ({ search, setSearch, darkMode }) => {
 
   return (
-    <div className="relative w-full sm:w-72 lg:w-80">
+    <div className="flex items-center relative w-full sm:w-72 lg:w-80">
 
       {/* Search Icon */}
       <Search
