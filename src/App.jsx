@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 
 import {
@@ -16,6 +15,9 @@ import {
   Menu,
   X,
   Sparkles,
+  ArrowRight,
+  Trash2,
+  RotateCcw,
 } from "lucide-react";
 
 import ProductList from "./components/ProductList";
@@ -26,7 +28,9 @@ import SortProduct from "./components/SortProduct";
 import PriceRange from "./components/PriceRange";
 
 
+// ========================================
 // INITIAL PRODUCTS
+// ========================================
 
 const initialProducts = [
   { id: 1, name: "Face Cream", price: 450, category: "Beauty", image: "https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b" },
@@ -67,6 +71,10 @@ const initialProducts = [
 ];
 
 
+// ========================================
+// MAIN APP
+// ========================================
+
 const App = () => {
 
   // PRODUCTS
@@ -74,9 +82,13 @@ const App = () => {
   const [products, setProducts] = useState(() => {
     try {
       const savedProducts = localStorage.getItem("nexora-products");
-      return savedProducts ? JSON.parse(savedProducts) : initialProducts;
+
+      return savedProducts
+        ? JSON.parse(savedProducts)
+        : initialProducts;
+
     } catch (error) {
-      console.error("Error loading products:", error);
+      console.error(error);
       return initialProducts;
     }
   });
@@ -87,6 +99,8 @@ const App = () => {
 
 
   // STATES
+
+  const [activePage, setActivePage] = useState("Dashboard");
 
   const [category, setCategory] = useState("All");
   const [search, setSearch] = useState("");
@@ -100,26 +114,31 @@ const App = () => {
   const [maxPrice, setMaxPrice] = useState("");
 
   const [darkMode, setDarkMode] = useState(false);
-
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
 
-  // SIDEBAR FUNCTIONS
+  // THEME
 
-  const openSidebar = () => setSidebarOpen(true);
+  const theme = darkMode
+    ? "bg-[#0B1120] text-white"
+    : "bg-[#F8FAFC] text-slate-800";
+
+  const card = darkMode
+    ? "bg-[#151F32] border-[#263449]"
+    : "bg-white border-slate-100";
+
+
+  // SIDEBAR
+
   const closeSidebar = () => setSidebarOpen(false);
 
-
-  // DELETE PRODUCT
-
-  const deleteProduct = (id) => {
-    setProducts((prev) =>
-      prev.filter((product) => product.id !== id)
-    );
+  const navigate = (page) => {
+    setActivePage(page);
+    closeSidebar();
   };
 
 
-  // ADD PRODUCT
+  // PRODUCT FUNCTIONS
 
   const addProduct = (newProduct) => {
     const product = {
@@ -132,8 +151,6 @@ const App = () => {
   };
 
 
-  // EDIT PRODUCT
-
   const editProduct = (updatedProduct) => {
     setProducts((prev) =>
       prev.map((product) =>
@@ -142,6 +159,37 @@ const App = () => {
           : product
       )
     );
+  };
+
+
+  const deleteProduct = (id) => {
+    setProducts((prev) =>
+      prev.filter((product) => product.id !== id)
+    );
+  };
+
+
+  const closeForm = () => {
+    setShowForm(false);
+    setEditingProduct(null);
+  };
+
+
+  // RESET INVENTORY
+
+  const resetInventory = () => {
+    const confirmed = window.confirm(
+      "Are you sure you want to reset your inventory to the original sample products?"
+    );
+
+    if (confirmed) {
+      setProducts(initialProducts);
+      setCategory("All");
+      setSearch("");
+      setMinPrice("");
+      setMaxPrice("");
+      setSortBy("");
+    }
   };
 
 
@@ -175,6 +223,7 @@ const App = () => {
   const sortedProducts = [...filteredProducts].sort((a, b) => {
 
     switch (sortBy) {
+
       case "priceLow":
         return a.price - b.price;
 
@@ -193,7 +242,7 @@ const App = () => {
   });
 
 
-  // STATISTICS
+  // CATEGORIES
 
   const categories = [
     ...new Set(products.map((product) => product.category))
@@ -205,36 +254,611 @@ const App = () => {
   );
 
 
-  // THEME
+  // REUSABLE STATISTICS
 
-  const theme = darkMode
-    ? "bg-[#0B1120] text-white"
-    : "bg-[#F8FAFC] text-slate-800";
+  const statistics = [
+    {
+      title: "Total Products",
+      value: products.length,
+      icon: Package,
+      color: "bg-indigo-100 text-indigo-600",
+    },
+    {
+      title: "Categories",
+      value: categories.length,
+      icon: Layers,
+      color: "bg-emerald-100 text-emerald-600",
+    },
+    {
+      title: "Inventory Value",
+      value: `₹${totalValue.toLocaleString("en-IN")}`,
+      icon: IndianRupee,
+      color: "bg-amber-100 text-amber-600",
+    },
+    {
+      title: "Filtered Products",
+      value: filteredProducts.length,
+      icon: TrendingUp,
+      color: "bg-purple-100 text-purple-600",
+    },
+  ];
 
-  const card = darkMode
-    ? "bg-[#151F32] border-[#263449]"
-    : "bg-white border-slate-100";
 
+  // PAGE TITLES
 
-  // CLOSE FORM
-
-  const closeForm = () => {
-    setShowForm(false);
-    setEditingProduct(null);
+  const pageDescriptions = {
+    Dashboard: "Here's what's happening with your inventory today.",
+    Products: "Manage, search and organise your products.",
+    Categories: "Explore and manage your product categories.",
+    Settings: "Manage your application preferences.",
   };
 
 
+  // ========================================
+  // DASHBOARD SECTION
+  // ========================================
+
+  const DashboardSection = () => (
+    <div>
+
+      <div className="mb-8">
+
+        <div className="flex items-center gap-2 mb-2">
+          <Sparkles size={17} className="text-indigo-500" />
+
+          <span className="text-xs font-semibold text-indigo-500">
+            YOUR BUSINESS AT A GLANCE
+          </span>
+        </div>
+
+        <h1 className="text-2xl md:text-3xl font-bold">
+          Welcome back, Admin 👋
+        </h1>
+
+        <p className="text-sm text-slate-400 mt-2">
+          Here's an overview of your inventory.
+        </p>
+
+      </div>
+
+
+      {/* STATISTICS */}
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 mb-9">
+
+        {statistics.map((stat, index) => {
+
+          const Icon = stat.icon;
+
+          return (
+            <div
+              key={index}
+              className={`p-6 rounded-2xl border shadow-sm hover:-translate-y-1 transition duration-300 ${card}`}
+            >
+
+              <div className="flex justify-between items-start">
+
+                <div>
+                  <p className="text-sm text-slate-400 font-medium">
+                    {stat.title}
+                  </p>
+
+                  <h3 className="text-2xl font-bold mt-3">
+                    {stat.value}
+                  </h3>
+                </div>
+
+                <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${stat.color}`}>
+                  <Icon size={23} />
+                </div>
+
+              </div>
+
+            </div>
+          );
+        })}
+
+      </div>
+
+
+      {/* RECENT PRODUCTS */}
+
+      <div className={`rounded-2xl border p-5 md:p-7 ${card}`}>
+
+        <div className="flex items-center justify-between mb-6">
+
+          <div>
+            <h2 className="text-lg font-bold">
+              Recent Products
+            </h2>
+
+            <p className="text-sm text-slate-400 mt-1">
+              Your latest inventory items.
+            </p>
+          </div>
+
+          <button
+            onClick={() => navigate("Products")}
+            className="flex items-center gap-2 text-sm text-indigo-500 font-semibold hover:gap-3 transition-all"
+          >
+            View All <ArrowRight size={17} />
+          </button>
+
+        </div>
+
+
+        <div className="space-y-3">
+
+          {products.slice(-4).reverse().map((product) => (
+
+            <div
+              key={product.id}
+              className={`flex items-center gap-4 p-3 rounded-xl border ${darkMode ? "border-slate-700" : "border-slate-100"}`}
+            >
+
+              <img
+                src={product.image}
+                alt={product.name}
+                className="w-14 h-14 object-cover rounded-xl"
+              />
+
+              <div className="flex-1 min-w-0">
+
+                <h3 className="font-semibold text-sm truncate">
+                  {product.name}
+                </h3>
+
+                <p className="text-xs text-slate-400 mt-1">
+                  {product.category}
+                </p>
+
+              </div>
+
+              <p className="font-bold text-sm">
+                ₹{Number(product.price).toLocaleString("en-IN")}
+              </p>
+
+            </div>
+
+          ))}
+
+          {products.length === 0 && (
+            <p className="text-center text-slate-400 py-8">
+              No products available.
+            </p>
+          )}
+
+        </div>
+
+      </div>
+
+    </div>
+  );
+
+
+  // ========================================
+  // PRODUCTS SECTION
+  // ========================================
+
+  const ProductsSection = () => (
+
+    <div>
+
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+
+        <div>
+          <h1 className="text-2xl md:text-3xl font-bold">
+            Products
+          </h1>
+
+          <p className="text-sm text-slate-400 mt-2">
+            Manage all your inventory products.
+          </p>
+        </div>
+
+        <button
+          onClick={() => {
+            setEditingProduct(null);
+            setShowForm(true);
+          }}
+          className="flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-3 rounded-xl text-sm font-semibold transition"
+        >
+          <Plus size={19} />
+          Add New Product
+        </button>
+
+      </div>
+
+
+      {/* FILTER SECTION */}
+
+      <section className={`rounded-2xl border shadow-sm overflow-hidden ${card}`}>
+
+        <div className="p-5 md:p-7 border-b border-slate-100 dark:border-slate-700">
+
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+
+            <div>
+              <h2 className="text-lg font-bold">
+                Product Inventory
+              </h2>
+
+              <p className="text-sm text-slate-400 mt-1">
+                Search and filter your products.
+              </p>
+            </div>
+
+            <p className="text-sm text-slate-400">
+              Showing{" "}
+              <span className="text-indigo-500 font-bold">
+                {filteredProducts.length}
+              </span>
+              {" "}of {products.length} products
+            </p>
+
+          </div>
+
+
+          <div className="flex flex-col gap-5 mt-6">
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+              <CategoryFilter
+                category={category}
+                setCategory={setCategory}
+                darkMode={darkMode}
+              />
+
+              <SearchBar
+                search={search}
+                setSearch={setSearch}
+                darkMode={darkMode}
+              />
+
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+              <SortProduct
+                sortBy={sortBy}
+                setSortBy={setSortBy}
+                darkMode={darkMode}
+              />
+
+              <PriceRange
+                minPrice={minPrice}
+                setMinPrice={setMinPrice}
+                maxPrice={maxPrice}
+                setMaxPrice={setMaxPrice}
+                darkMode={darkMode}
+              />
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+        {/* PRODUCT LIST */}
+
+        <div className="p-4 md:p-6">
+
+          <ProductList
+            product={sortedProducts}
+            onDelete={deleteProduct}
+            onEdit={(product) => {
+              setEditingProduct(product);
+              setShowForm(true);
+            }}
+            darkMode={darkMode}
+          />
+
+        </div>
+
+      </section>
+
+    </div>
+  );
+
+
+  // ========================================
+  // CATEGORIES SECTION
+  // ========================================
+
+  const CategoriesSection = () => (
+
+    <div>
+
+      <div className="mb-8">
+
+        <h1 className="text-2xl md:text-3xl font-bold">
+          Categories
+        </h1>
+
+        <p className="text-sm text-slate-400 mt-2">
+          Browse your products by category.
+        </p>
+
+      </div>
+
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+
+        {categories.map((cat, index) => {
+
+          const count = products.filter(
+            (product) => product.category === cat
+          ).length;
+
+          const icons = [
+            "bg-pink-100 text-pink-600",
+            "bg-purple-100 text-purple-600",
+            "bg-amber-100 text-amber-600",
+            "bg-emerald-100 text-emerald-600",
+            "bg-blue-100 text-blue-600",
+            "bg-indigo-100 text-indigo-600",
+          ];
+
+          return (
+
+            <div
+              key={cat}
+              className={`p-6 rounded-2xl border shadow-sm hover:-translate-y-1 transition duration-300 ${card}`}
+            >
+
+              <div className="flex items-center justify-between">
+
+                <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${icons[index % icons.length]}`}>
+                  <Layers size={23} />
+                </div>
+
+                <span className="text-xs font-semibold text-slate-400">
+                  CATEGORY {index + 1}
+                </span>
+
+              </div>
+
+
+              <h2 className="text-lg font-bold mt-5">
+                {cat}
+              </h2>
+
+              <p className="text-sm text-slate-400 mt-2">
+                {count} products available
+              </p>
+
+
+              <button
+                onClick={() => {
+                  setCategory(cat);
+                  setActivePage("Products");
+                }}
+                className="flex items-center gap-2 text-indigo-500 text-sm font-semibold mt-6 hover:gap-3 transition-all"
+              >
+                View Products <ArrowRight size={17} />
+              </button>
+
+            </div>
+
+          );
+        })}
+
+      </div>
+
+
+      {categories.length === 0 && (
+
+        <div className={`p-10 text-center rounded-2xl border ${card}`}>
+          <Layers size={35} className="mx-auto text-slate-400 mb-3" />
+
+          <p className="font-semibold">
+            No categories available
+          </p>
+
+          <p className="text-sm text-slate-400 mt-2">
+            Add products to create categories.
+          </p>
+        </div>
+
+      )}
+
+    </div>
+  );
+
+
+  // ========================================
+  // SETTINGS SECTION
+  // ========================================
+
+  const SettingsSection = () => (
+
+    <div>
+
+      <div className="mb-8">
+
+        <h1 className="text-2xl md:text-3xl font-bold">
+          Settings
+        </h1>
+
+        <p className="text-sm text-slate-400 mt-2">
+          Manage your dashboard preferences.
+        </p>
+
+      </div>
+
+
+      {/* APPEARANCE */}
+
+      <div className={`rounded-2xl border p-6 md:p-8 mb-6 ${card}`}>
+
+        <div className="flex items-center gap-3 mb-6">
+
+          <div className="w-11 h-11 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center">
+            <Sun size={22} />
+          </div>
+
+          <div>
+            <h2 className="font-bold text-lg">
+              Appearance
+            </h2>
+
+            <p className="text-sm text-slate-400">
+              Customize your dashboard theme.
+            </p>
+          </div>
+
+        </div>
+
+
+        <div className="flex items-center justify-between gap-4">
+
+          <div>
+            <p className="font-semibold text-sm">
+              Dark Mode
+            </p>
+
+            <p className="text-xs text-slate-400 mt-1">
+              Switch between light and dark themes.
+            </p>
+          </div>
+
+          <button
+            onClick={() => setDarkMode(!darkMode)}
+            className={`w-14 h-7 rounded-full relative transition ${darkMode ? "bg-indigo-600" : "bg-slate-300"}`}
+            aria-label="Toggle dark mode"
+          >
+
+            <span
+              className={`absolute top-1 w-5 h-5 rounded-full bg-white transition-all ${darkMode ? "left-8" : "left-1"}`}
+            />
+
+          </button>
+
+        </div>
+
+
+        <div className="flex gap-3 mt-7">
+
+          <button
+            onClick={() => setDarkMode(false)}
+            className={`flex-1 flex items-center justify-center gap-2 border rounded-xl p-4 text-sm font-semibold ${!darkMode ? "border-indigo-500 text-indigo-600 bg-indigo-50" : "border-slate-600"}`}
+          >
+            <Sun size={18} />
+            Light
+          </button>
+
+          <button
+            onClick={() => setDarkMode(true)}
+            className={`flex-1 flex items-center justify-center gap-2 border rounded-xl p-4 text-sm font-semibold ${darkMode ? "border-indigo-500 text-indigo-400 bg-indigo-500/10" : "border-slate-600"}`}
+          >
+            <Moon size={18} />
+            Dark
+          </button>
+
+        </div>
+
+      </div>
+
+
+      {/* INVENTORY SETTINGS */}
+
+      <div className={`rounded-2xl border p-6 md:p-8 ${card}`}>
+
+        <div className="flex items-center gap-3 mb-6">
+
+          <div className="w-11 h-11 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center">
+            <Package size={22} />
+          </div>
+
+          <div>
+            <h2 className="font-bold text-lg">
+              Inventory Settings
+            </h2>
+
+            <p className="text-sm text-slate-400">
+              Manage your stored product data.
+            </p>
+          </div>
+
+        </div>
+
+
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+
+          <div>
+            <p className="font-semibold text-sm">
+              Reset Inventory
+            </p>
+
+            <p className="text-xs text-slate-400 mt-1">
+              Restore the original sample products.
+            </p>
+          </div>
+
+          <button
+            onClick={resetInventory}
+            className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-red-50 text-red-600 hover:bg-red-100 text-sm font-semibold transition"
+          >
+            <RotateCcw size={17} />
+            Reset Products
+          </button>
+
+        </div>
+
+      </div>
+
+
+      {/* APPLICATION INFORMATION */}
+
+      <div className={`rounded-2xl border p-6 mt-6 ${card}`}>
+
+        <h2 className="font-bold text-lg mb-4">
+          Application Information
+        </h2>
+
+        <div className="space-y-3 text-sm">
+
+          <div className="flex justify-between">
+            <span className="text-slate-400">Application</span>
+            <span className="font-semibold">Nexora</span>
+          </div>
+
+          <div className="flex justify-between">
+            <span className="text-slate-400">Version</span>
+            <span className="font-semibold">1.0.0</span>
+          </div>
+
+          <div className="flex justify-between">
+            <span className="text-slate-400">Total Products</span>
+            <span className="font-semibold">{products.length}</span>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+  );
+
+
+  // ========================================
+  // MAIN RETURN
+  // ========================================
+
   return (
 
-    <div className={`min-h-screen ${theme} transition-colors duration-300`}>
+    <div className={`min-h-screen transition-colors duration-300 ${theme}`}>
 
       {/* MOBILE OVERLAY */}
 
       {sidebarOpen && (
+
         <div
           onClick={closeSidebar}
-          className="fixed inset-0 z-40 bg-black/50 lg:hidden"
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
         />
+
       )}
 
 
@@ -245,15 +869,12 @@ const App = () => {
                     fixed top-0 left-0 z-50
                     h-screen w-[260px]
                     border-r
-                    transition-transform duration-300 ease-in-out
+                    transition-transform duration-300
                     ${darkMode
             ? "bg-[#111B2E] border-[#263449]"
             : "bg-white border-slate-100"
           }
-                    ${sidebarOpen
-            ? "translate-x-0"
-            : "-translate-x-full"
-          }
+                    ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
                     lg:translate-x-0
                 `}
       >
@@ -269,7 +890,7 @@ const App = () => {
             </div>
 
             <div>
-              <h1 className="text-xl font-bold tracking-tight">
+              <h1 className="text-xl font-bold">
                 Nexora
               </h1>
 
@@ -280,12 +901,9 @@ const App = () => {
 
           </div>
 
-          {/* MOBILE CLOSE BUTTON */}
-
           <button
-            type="button"
             onClick={closeSidebar}
-            className="lg:hidden p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+            className="lg:hidden p-2 rounded-lg"
           >
             <X size={20} />
           </button>
@@ -301,90 +919,72 @@ const App = () => {
             WORKSPACE
           </p>
 
+
           <nav className="space-y-2">
 
-            <button
-              type="button"
-              onClick={() => {
-                setCategory("All");
-                closeSidebar();
-              }}
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-indigo-600 text-white shadow-lg shadow-indigo-600/20"
-            >
-              <LayoutDashboard size={19} />
-              <span className="font-medium text-sm">
-                Dashboard
-              </span>
-            </button>
+            {[
+              {
+                name: "Dashboard",
+                icon: LayoutDashboard,
+              },
+              {
+                name: "Products",
+                icon: ShoppingBag,
+              },
+              {
+                name: "Categories",
+                icon: Layers,
+              },
+            ].map((item) => {
 
-            <button
-              type="button"
-              onClick={() => {
-                setCategory("All");
-                closeSidebar();
-              }}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition
-                            ${darkMode
-                  ? "text-slate-300 hover:bg-[#202D43]"
-                  : "text-slate-500 hover:bg-slate-50"
-                }`}
-            >
-              <ShoppingBag size={19} />
-              Products
-            </button>
+              const Icon = item.icon;
 
-            <button
-              type="button"
-              onClick={() => {
-                setCategory("All");
-                closeSidebar();
-              }}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition
-                            ${darkMode
-                  ? "text-slate-300 hover:bg-[#202D43]"
-                  : "text-slate-500 hover:bg-slate-50"
-                }`}
-            >
-              <Layers size={19} />
-              Categories
-            </button>
+              return (
+
+                <button
+                  key={item.name}
+                  onClick={() => navigate(item.name)}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition
+                                    ${activePage === item.name
+                      ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/20"
+                      : darkMode
+                        ? "text-slate-300 hover:bg-[#202D43]"
+                        : "text-slate-500 hover:bg-slate-50"
+                    }`}
+                >
+
+                  <Icon size={19} />
+
+                  {item.name}
+
+                </button>
+
+              );
+
+            })}
 
           </nav>
 
-
-          {/* PREFERENCES */}
 
           <p className="text-[11px] font-bold tracking-[2px] text-slate-400 mt-10 mb-5 px-3">
             PREFERENCES
           </p>
 
-          <button
-            type="button"
-            onClick={() => {
-              setDarkMode(!darkMode);
-              closeSidebar();
-            }}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition
-                        ${darkMode
-                ? "text-slate-300 hover:bg-[#202D43]"
-                : "text-slate-500 hover:bg-slate-50"
-              }`}
-          >
-            {darkMode ? <Sun size={19} /> : <Moon size={19} />}
-            {darkMode ? "Light Mode" : "Dark Mode"}
-          </button>
 
           <button
-            type="button"
-            onClick={closeSidebar}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition
-                        ${darkMode
-                ? "text-slate-300 hover:bg-[#202D43]"
-                : "text-slate-500 hover:bg-slate-50"
+            onClick={() => navigate("Settings")}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition
+                        ${activePage === "Settings"
+                ? "bg-indigo-600 text-white"
+                : darkMode
+                  ? "text-slate-300 hover:bg-[#202D43]"
+                  : "text-slate-500 hover:bg-slate-50"
               }`}
           >
+
             <Settings size={19} />
             Settings
+
           </button>
 
         </div>
@@ -434,24 +1034,20 @@ const App = () => {
 
           <div className="flex items-center gap-4">
 
-            {/* MOBILE MENU BUTTON */}
-
             <button
-              type="button"
-              onClick={openSidebar}
-              aria-label="Open sidebar"
-              className="lg:hidden p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+              onClick={() => setSidebarOpen(true)}
+              className="lg:hidden p-2 rounded-lg"
             >
               <Menu size={23} />
             </button>
 
             <div>
               <h2 className="text-lg font-bold">
-                Dashboard Overview
+                {activePage}
               </h2>
 
               <p className="text-xs text-slate-400 mt-1">
-                Manage your products and inventory
+                {pageDescriptions[activePage]}
               </p>
             </div>
 
@@ -461,7 +1057,6 @@ const App = () => {
           <div className="flex items-center gap-3">
 
             <button
-              type="button"
               onClick={() => setDarkMode(!darkMode)}
               className={`p-2.5 rounded-xl border ${card}`}
             >
@@ -471,11 +1066,9 @@ const App = () => {
               }
             </button>
 
-            <button
-              type="button"
-              className={`relative p-2.5 rounded-xl border ${card}`}
-            >
+            <button className={`relative p-2.5 rounded-xl border ${card}`}>
               <Bell size={19} />
+
               <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full" />
             </button>
 
@@ -488,214 +1081,25 @@ const App = () => {
         </header>
 
 
-        {/* DASHBOARD BODY */}
+        {/* PAGE CONTENT */}
 
         <div className="p-5 md:p-8">
 
+          {activePage === "Dashboard" && (
+            <DashboardSection />
+          )}
 
-          {/* WELCOME */}
+          {activePage === "Products" && (
+            <ProductsSection />
+          )}
 
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-5 mb-8">
+          {activePage === "Categories" && (
+            <CategoriesSection />
+          )}
 
-            <div>
-
-              <div className="flex items-center gap-2 mb-2">
-                <Sparkles size={17} className="text-indigo-500" />
-
-                <span className="text-xs font-semibold text-indigo-500">
-                  YOUR BUSINESS AT A GLANCE
-                </span>
-              </div>
-
-              <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
-                Welcome back, Admin 👋
-              </h1>
-
-              <p className="text-sm text-slate-400 mt-2">
-                Here's what's happening with your inventory today.
-              </p>
-
-            </div>
-
-            <button
-              type="button"
-              onClick={() => {
-                setEditingProduct(null);
-                setShowForm(true);
-              }}
-              className="flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-3 rounded-xl text-sm font-semibold shadow-lg shadow-indigo-600/20 transition"
-            >
-              <Plus size={19} />
-              Add New Product
-            </button>
-
-          </div>
-
-
-          {/* STATISTICS */}
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 mb-9">
-
-            {[
-              {
-                title: "Total Products",
-                value: products.length,
-                icon: Package,
-                color: "bg-indigo-100 text-indigo-600",
-                subtitle: "Products in inventory",
-              },
-              {
-                title: "Categories",
-                value: categories.length,
-                icon: Layers,
-                color: "bg-emerald-100 text-emerald-600",
-                subtitle: "Active categories",
-              },
-              {
-                title: "Inventory Value",
-                value: `₹${totalValue.toLocaleString("en-IN")}`,
-                icon: IndianRupee,
-                color: "bg-amber-100 text-amber-600",
-                subtitle: "Total product value",
-              },
-              {
-                title: "Filtered Results",
-                value: filteredProducts.length,
-                icon: TrendingUp,
-                color: "bg-purple-100 text-purple-600",
-                subtitle: "Matching products",
-              },
-            ].map((stat, index) => {
-
-              const Icon = stat.icon;
-
-              return (
-                <div
-                  key={index}
-                  className={`p-6 rounded-2xl border ${card} shadow-sm hover:-translate-y-1 transition duration-300`}
-                >
-
-                  <div className="flex justify-between items-start">
-
-                    <div>
-                      <p className="text-sm text-slate-400 font-medium">
-                        {stat.title}
-                      </p>
-
-                      <h3 className="text-2xl font-bold mt-3 break-all">
-                        {stat.value}
-                      </h3>
-
-                      <p className="text-xs text-slate-400 mt-3">
-                        {stat.subtitle}
-                      </p>
-                    </div>
-
-                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${stat.color}`}>
-                      <Icon size={23} />
-                    </div>
-
-                  </div>
-
-                </div>
-              );
-            })}
-
-          </div>
-
-
-          {/* PRODUCT INVENTORY */}
-
-          <section className={`rounded-2xl border shadow-sm overflow-hidden ${card}`}>
-
-            <div className="p-5 md:p-7 border-b border-slate-100 dark:border-slate-700">
-
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-
-                <div>
-                  <h2 className="text-lg font-bold">
-                    Product Inventory
-                  </h2>
-
-                  <p className="text-sm text-slate-400 mt-1">
-                    Manage, search and organise your products.
-                  </p>
-                </div>
-
-                <div className="text-sm text-slate-400">
-                  Showing{" "}
-                  <span className="font-bold text-indigo-500">
-                    {filteredProducts.length}
-                  </span>
-                  {" "}of {products.length} products
-                </div>
-
-              </div>
-
-
-              {/* FILTERS */}
-
-              <div className="flex flex-col gap-5 mt-6">
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-
-                  <CategoryFilter
-                    category={category}
-                    setCategory={setCategory}
-                    darkMode={darkMode}
-                  />
-
-                  <SearchBar
-                    search={search}
-                    setSearch={setSearch}
-                    darkMode={darkMode}
-                  />
-
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-
-                  <SortProduct
-                    sortBy={sortBy}
-                    setSortBy={setSortBy}
-                    darkMode={darkMode}
-                  />
-
-                  <PriceRange
-                    minPrice={minPrice}
-                    setMinPrice={setMinPrice}
-                    maxPrice={maxPrice}
-                    setMaxPrice={setMaxPrice}
-                    darkMode={darkMode}
-                  />
-
-                </div>
-
-              </div>
-
-            </div>
-
-
-            {/* PRODUCT LIST */}
-
-            <div className="p-4 md:p-6">
-
-              <ProductList
-                product={sortedProducts}
-                onDelete={deleteProduct}
-                onEdit={(product) => {
-                  setEditingProduct(product);
-                  setShowForm(true);
-                }}
-                darkMode={darkMode}
-              />
-
-            </div>
-
-          </section>
-
-
-          {/* FOOTER */}
+          {activePage === "Settings" && (
+            <SettingsSection />
+          )}
 
           <footer className="text-center text-xs text-slate-400 py-8">
             © 2026 Nexora Inventory Suite. All rights reserved.
@@ -709,6 +1113,7 @@ const App = () => {
       {/* PRODUCT FORM */}
 
       {showForm && (
+
         <ProductForm
           onClose={closeForm}
           addProduct={addProduct}
@@ -716,10 +1121,13 @@ const App = () => {
           editingProduct={editingProduct}
           darkMode={darkMode}
         />
+
       )}
 
     </div>
+
   );
+
 };
 
 export default App;
